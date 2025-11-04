@@ -2,13 +2,10 @@ import streamlit as st
 import pandas as pd
 import re
 
-# --------------------------------
-# BASIC SETUP
-# --------------------------------
-st.set_page_config(page_title="Restaurant Booking", page_icon="🍴", layout="wide")
+st.set_page_config(page_title="Restaurant Booking", layout="wide")
 st.title("Restaurant Reservation Booking System")
 
-# Restaurant data
+
 restaurants = {
     "Amirtha Fine Dining": "amirtha.png",
     "Zaitoon": "zaitoon.png",
@@ -16,7 +13,7 @@ restaurants = {
     "Signature": "signature.png"
 }
 
-# Store reservations in session state
+
 if "reservations" not in st.session_state:
     st.session_state.reservations = []
 
@@ -24,9 +21,7 @@ if "selected_restaurant" not in st.session_state:
     st.session_state.selected_restaurant = None
 
 
-# --------------------------------
-# VALIDATION FUNCTIONS
-# --------------------------------
+
 def is_valid_time(time_str):
     """Check if time is in proper HH:MM 24-hour format"""
     pattern = r"^(?:[01]\d|2[0-3]):[0-5]\d$"
@@ -39,9 +34,7 @@ def is_valid_email(email):
     return re.match(pattern, email) is not None
 
 
-# --------------------------------
-# MAIN FUNCTIONS
-# --------------------------------
+
 def add_reservation(restaurant, name, people, date, time, email):
     """Add a new reservation"""
     st.session_state.reservations.append({
@@ -78,16 +71,11 @@ def cancel_reservation(email):
         st.error("No reservation found for that email.")
 
 
-# --------------------------------
-# SIDEBAR MENU
-# --------------------------------
+
 menu = ["Home", "View Reservations", "Cancel Reservation"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 
-# --------------------------------
-# HOME PAGE — Restaurant Selection
-# --------------------------------
 if choice == "Home" and not st.session_state.selected_restaurant:
     st.header("Choose a Restaurant to Reserve")
 
@@ -100,9 +88,6 @@ if choice == "Home" and not st.session_state.selected_restaurant:
                 st.rerun()
 
 
-# --------------------------------
-# RESERVATION FORM
-# --------------------------------
 if st.session_state.selected_restaurant:
     st.header(f" Make a Reservation at {st.session_state.selected_restaurant}")
 
@@ -131,17 +116,12 @@ if st.session_state.selected_restaurant:
             st.rerun()
 
 
-# --------------------------------
-# VIEW RESERVATIONS
-# --------------------------------
+
 elif choice == "View Reservations":
     st.header("All Reservations")
     view_reservations()
 
 
-# --------------------------------
-# CANCEL RESERVATION BY EMAIL
-# --------------------------------
 elif choice == "Cancel Reservation":
     st.header("Cancel a Reservation")
     email = st.text_input("Enter your Email Address to cancel reservation:")
@@ -152,3 +132,31 @@ elif choice == "Cancel Reservation":
             st.error("Please enter a valid email address format.")
         else:
             cancel_reservation(email)
+
+
+st.set_page_config(page_title="My App", layout="wide")
+
+
+import base64
+
+def set_bg(png_file):
+    with open(png_file, "rb") as f:
+        data = f.read()
+    encoded = base64.b64encode(data).decode()
+    page_bg = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("data:image/png;base64,{encoded}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+    st.markdown(page_bg, unsafe_allow_html=True)
+
+set_bg("bgpic.png")
+
+
+
+
