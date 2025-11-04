@@ -43,7 +43,71 @@ def view_reservations():
     if not st.session_state.reservations:
         st.info("No reservations yet.")
     else:
-        st.write("### Al
+        st.write("### All Reservations:")
+        for r in st.session_state.reservations:
+            st.write(f" {r['Restaurant']} | Name: {r['Name']} | People {r['People']} | Date: {r['Date']} | Time: {r['Time']} | Email: {r['Email']}")
+
+def cancel_reservation(email):
+    for r in st.session_state.reservations:
+        if r["Email"].lower() == email.lower():
+            st.session_state.reservations.remove(r)
+            st.warning(f"Reservation under {email} has been cancelled.")
+            return
+    st.error("No reservation found for that email.")
+
+menu = ["Home", "View Reservations", "Cancel Reservation"]
+choice = st.sidebar.selectbox("Menu", menu)
+
+if choice == "Home" and not st.session_state.selected_restaurant:
+    st.header("Choose a Restaurant to Make a Reservation")
+    cols = st.columns(4)
+    for i, (name, img) in enumerate(restaurants.items()):
+        with cols[i]:
+            st.image(img, caption=name, use_container_width=True)
+            if st.button(f"Reserve at {name}", key=name):
+                st.session_state.selected_restaurant = name
+                st.rerun()
+
+if st.session_state.selected_restaurant:
+    st.header(f"Reserve a Table at {st.session_state.selected_restaurant}")
+    name = st.text_input("Your Name")
+    people = st.number_input("Number of People", min_value=1, max_value=20)
+    date = st.date_input("Reservation Date")
+    time = st.text_input("Time (HH:MM - 24-hour format)")
+    email = st.text_input("Email Address")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Confirm Reservation"):
+            if not name or not time or not email:
+                st.error("Please fill all fields.")
+            elif not check_time_format(time):
+                st.error("Enter a valid time in HH:MM format.")
+            elif not check_email_format(email):
+                st.error("Enter a valid email (example: name@gmail.com).")
+            else:
+                add_reservation(st.session_state.selected_restaurant, name, people, str(date), time, email)
+                st.session_state.selected_restaurant = None
+
+    with col2:
+        if st.button("Go Back"):
+            st.session_state.selected_restaurant = None
+            st.rerun()
+
+elif choice == "View Reservations":
+    st.header("All Reservations")
+    view_reservations()
+
+elif choice == "Cancel Reservation":
+    st.header("Cancel Reservation")
+    email = st.text_input("Enter your Email Address")
+    if st.button("Cancel Reservation"):
+        if not email:
+            st.error("Please enter your email.")
+        elif not check_email_format(email):
+            st.error("Invalid email format.")
+        else:
+            cancel_reservation(email)
 
 
 
